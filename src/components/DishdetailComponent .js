@@ -1,6 +1,14 @@
 import React,{Component} from 'react';
-import { Card, CardImg, CardText, CardBody, CardTitle,Breadcrumb, BreadcrumbItem,Modal,ModalBody,ModalHeader} from 'reactstrap';
+import { Card, CardImg, CardText, CardBody, CardTitle, Breadcrumb, BreadcrumbItem, Row, Label, Col,
+    Modal, ModalHeader, ModalBody, Button } from 'reactstrap';
 import { Link } from 'react-router-dom';
+import { Control, LocalForm, Errors } from 'react-redux-form';
+
+
+const required = (val) => val && val.length;
+const maxLength = (len) => (val) => !val || val.length <= len;
+const minLength = (len) => (val) => val && val.length >= len;
+
 
 
 class CommentForm extends Component{
@@ -20,18 +28,69 @@ class CommentForm extends Component{
             isformopen:!this.state.isformopen
         });
     }
+
+    handleSubmitComment(val){
+        this.toggleModal();
+        alert(JSON.stringify(val));
+        console.log(JSON.stringify(val));
+    }
+
     render()
     {
         return(
             <React.Fragment>
             <div className="row">
-                <button type="button" class="btn btn-outline-secondary" onClick={this.toggleModel}>
+                <button type="button" class="btn btn-outline-secondary" onClick={this.toggleModal}>
                     <span className="fa fa-pencil"> </span>  submit comment</button>
 
             </div>
             <Modal isOpen={this.state.isformopen} toggle={this.toggleModal}>
-            <ModalHeader toggle={this.toggleModal}>Login</ModalHeader>
+            <ModalHeader toggle={this.toggleModal}>Submit Comment</ModalHeader>
             <ModalBody>
+                <LocalForm onSubmit={ (values) => this.handleSubmitComment(values)}>
+                <Row className="form-group">
+                                <Label htmlFor="ranking" xs={12}>Ranking</Label>
+                                <Col xs={12}>
+                                    <Control.select model=".ranking" name="ranking" className="form-control">
+                                        <option>1</option>
+                                        <option>2</option>
+                                        <option>3</option>
+                                        <option>4</option>
+                                        <option>5</option>
+                                    </Control.select>
+                                </Col>
+                            </Row>
+                            <Row className="form-group">
+                                <Label htmlFor="author" xs={12}>Your Name</Label>
+                                <Col xs={12}>
+                                    <Control.text model=".author" id="author" name="author"
+                                            placeholder="Your Name"
+                                            className="form-control"
+                                            validators={{
+                                                required, minLength: minLength(3), maxLength: maxLength(15)
+                                            }} />
+                                    <Errors className="text-danger" model=".author" show="touched"
+                                        messages={{
+                                            required: 'Required',
+                                            minLength: 'Must be greater than 2 characters',
+                                            maxLength: 'Must be 15 characters or less'
+                                        }} />
+                                </Col>
+                            </Row>
+                            <Row className="form-group">
+                                <Label htmlFor="comment" xs={12}>Comment</Label>
+                                <Col xs={12}>
+                                    <Control.textarea model=".comment" id="comment" name="comment" rows="6"  className="form-control" />
+                                </Col>
+                            </Row>
+                            <Row className="form-group">
+                                <Col>
+                                    <Button type="submit" color="primary">
+                                        Submit
+                                    </Button>
+                                </Col>
+                            </Row>
+                </LocalForm>
           
                 
             </ModalBody>
