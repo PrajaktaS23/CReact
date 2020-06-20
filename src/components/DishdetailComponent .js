@@ -1,10 +1,50 @@
-import React from 'react';
-import { Card, CardImg, CardText, CardBody, CardTitle,Breadcrumb, BreadcrumbItem} from 'reactstrap';
+import React,{Component} from 'react';
+import { Card, CardImg, CardText, CardBody, CardTitle,Breadcrumb, BreadcrumbItem,Modal,ModalBody,ModalHeader} from 'reactstrap';
 import { Link } from 'react-router-dom';
+
+
+class CommentForm extends Component{
+
+    constructor(props)
+    {
+        super(props);
+
+        this.state={
+            isformopen:false
+        };
+        this.toggleModal=this.toggleModal.bind(this);
+    }
+
+    toggleModal(){
+        this.setState({
+            isformopen:!this.state.isformopen
+        });
+    }
+    render()
+    {
+        return(
+            <React.Fragment>
+            <div className="row">
+                <button type="button" class="btn btn-outline-secondary" onClick={this.toggleModel}>
+                    <span className="fa fa-pencil"> </span>  submit comment</button>
+
+            </div>
+            <Modal isOpen={this.state.isformopen} toggle={this.toggleModal}>
+            <ModalHeader toggle={this.toggleModal}>Login</ModalHeader>
+            <ModalBody>
+          
+                
+            </ModalBody>
+        </Modal>
+        </React.Fragment>
+        );
+   }
+}
+
 
     function RenderDish({dish}) {
         return(
-            <div className="col-12 col-md-5 m-1">
+            <div >
                 <Card>
                     <CardImg width="100" src={dish.image} alt={dish.name} />
                     <CardBody>
@@ -35,7 +75,7 @@ import { Link } from 'react-router-dom';
             
             
             return (
-                <div className="col-12 col-md-5 m-1">
+                <div >
                     <h4>Comments</h4>
                     <div>{comms}</div>
                 </div>
@@ -51,6 +91,7 @@ import { Link } from 'react-router-dom';
 
 
     const DishDetail = (props) => {
+        console.log(props);
 
         console.log('Dishdetail Component render invoked');
 
@@ -74,13 +115,15 @@ import { Link } from 'react-router-dom';
                     </div>
                     <div className="col-12 col-md-5 m-1">
                         <RenderComments comments={props.comments} />
+                        <CommentForm/>
                     </div>
+
                 </div>
                 </div>
             );
         } else {
             return (
-                <div>dish</div>
+                <div></div>
             );
         }
 
