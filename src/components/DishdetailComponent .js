@@ -1,15 +1,14 @@
 import React,{Component} from 'react';
-import { Card, CardImg, CardText, CardBody, CardTitle, Breadcrumb, BreadcrumbItem, Row, Label, Col,
-    Modal, ModalHeader, ModalBody, Button } from 'reactstrap';
+import { Card, CardImg, CardText, CardBody, CardTitle,Breadcrumb, BreadcrumbItem,Modal,ModalBody,ModalHeader, Row, Label, Col,Button} from 'reactstrap';
 import { Link } from 'react-router-dom';
 import { Control, LocalForm, Errors } from 'react-redux-form';
+import { Loading } from './LoadingComponent';
+import { baseUrl } from '../shared/baseURL';
 
 
 const required = (val) => val && val.length;
 const maxLength = (len) => (val) => !val || val.length <= len;
 const minLength = (len) => (val) => val && val.length >= len;
-
-
 
 class CommentForm extends Component{
 
@@ -29,10 +28,10 @@ class CommentForm extends Component{
         });
     }
 
-    handleSubmitComment(val){
+    handleSubmitComment(values){
+        console.log(this.props);
         this.toggleModal();
-        alert(JSON.stringify(val));
-        console.log(JSON.stringify(val));
+        this.props.addComment(this.props.dishId, values.rating, values.author, values.comment);
     }
 
     render()
@@ -47,8 +46,9 @@ class CommentForm extends Component{
             <Modal isOpen={this.state.isformopen} toggle={this.toggleModal}>
             <ModalHeader toggle={this.toggleModal}>Submit Comment</ModalHeader>
             <ModalBody>
-                <LocalForm onSubmit={ (values) => this.handleSubmitComment(values)}>
-                <Row className="form-group">
+
+            <LocalForm onSubmit={ (values) => this.handleSubmitComment(values)}>
+                            <Row className="form-group">
                                 <Label htmlFor="ranking" xs={12}>Ranking</Label>
                                 <Col xs={12}>
                                     <Control.select model=".ranking" name="ranking" className="form-control">
@@ -90,7 +90,7 @@ class CommentForm extends Component{
                                     </Button>
                                 </Col>
                             </Row>
-                </LocalForm>
+                        </LocalForm>
           
                 
             </ModalBody>
@@ -105,7 +105,7 @@ class CommentForm extends Component{
         return(
             <div >
                 <Card>
-                    <CardImg width="100" src={dish.image} alt={dish.name} />
+                    <CardImg width="100" src={baseUrl + dish.image} alt={dish.name} />
                     <CardBody>
                         <CardTitle>{dish.name}</CardTitle>
                         <CardText>{dish.description}</CardText>
@@ -115,7 +115,7 @@ class CommentForm extends Component{
         );
     }
 
-    function RenderComments({comments}){
+    function RenderComments({comments,addComment,dishId}){
         if (comments != null){
             let comms = comments.map((comm, i) => {
                 let date = new Intl.DateTimeFormat('en-US', {
@@ -125,10 +125,13 @@ class CommentForm extends Component{
                 }).format(new Date(Date.parse(comm.date)))
                 
                 return (
+                      <div>
                         <ul key={comm.id} className="list-unstyled">
                             <li className="comment">{comm.comment}</li>
                             <li className="author">-- {comm.author}, {date}</li>
                         </ul>
+                      
+                         </div>
                     );
                 })
             
@@ -137,6 +140,7 @@ class CommentForm extends Component{
                 <div >
                     <h4>Comments</h4>
                     <div>{comms}</div>
+                    <CommentForm dishId={dishId} addComment={addComment}/>
                 </div>
                 
             );
@@ -150,11 +154,28 @@ class CommentForm extends Component{
 
 
     const DishDetail = (props) => {
-        console.log(props);
+              
+        if (props.isLoading) {
+            return(
+                <div className="container">
+                    <div className="row">            
+                        <Loading />
+                    </div>
+                </div>
+            );
+        }
+        else if (props.errMess) {
+            return(
+                <div className="container">
+                    <div className="row">            
+                        <h4>{props.errMess}</h4>
+                    </div>
+                </div>
+            );
+        }
+       
 
-        console.log('Dishdetail Component render invoked');
-
-        if (props.dish != null) {
+       else if (props.dish != null) {
             return (
                 <div className="container">
                 <div className="row">
@@ -173,8 +194,11 @@ class CommentForm extends Component{
                         <RenderDish dish={props.dish} />
                     </div>
                     <div className="col-12 col-md-5 m-1">
-                        <RenderComments comments={props.comments} />
-                        <CommentForm/>
+                    <RenderComments comments={props.comments}
+        addComment={props.addComment}
+        dishId={props.dish.id}
+      />
+                       
                     </div>
 
                 </div>
